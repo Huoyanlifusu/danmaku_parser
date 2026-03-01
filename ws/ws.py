@@ -12,7 +12,7 @@ WEB_URL = "https://api.live.bilibili.com/xlive/web-room/v1/index/getDanmuInfo"
 UID_INIT_URL = "https://api.bilibili.com/x/web-interface/nav"
 BUVID_INIT_URL = "https://www.bilibili.com/"
 ROOM_URL = "https://api.live.bilibili.com/room/v1/Room/get_info"
-rmId = 468200 # represent for bilibili stream room id
+rmId = 22637261 # represent for bilibili stream room id
 rmType = 0
 params = {
     'id': rmId,
@@ -38,6 +38,13 @@ class BiliStreamClient():
         self._session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10))
         self._wbi_signer = _get_wbi_signer(self._session)
         self._uid = None
+        # 弹幕消息队列，供外部异步消费
+        self._danmaku_queue = asyncio.Queue()
+
+    async def recv_danmaku(self):
+        """异步获取一条弹幕消息（dict），无弹幕时阻塞等待。"""
+        logger.pr_debug("Waiting for a danmaku message...")
+        return await self._danmaku_queue.get()
     
     async def _init_uid(self):
         cookies = self._session.cookie_jar.filter_cookies(yarl.URL(UID_INIT_URL))
@@ -254,6 +261,8 @@ class BiliStreamClient():
                 if comment:
                     text = comment['text']
                     logger.pr_info(f"评论: {comment['nickname']}: {text}")
+                    # 弹幕消息入队，供外部消费
+                    await self._danmaku_queue.put(comment)
                     # 可以在这里调用其他处理函数
                     if filter(text):
                         push_next_command(text)
