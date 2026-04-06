@@ -1,90 +1,176 @@
-# B站弹幕姬 - Bilibili Danmaku
+# B站弹幕姬使用说明
 
-基于WebSocket通信，实时接收B站直播间弹幕的桌面应用。
+## 快速开始
 
-## 功能特点
+### 1. 安装依赖
 
-🎮 **核心功能**
-- 实时弹幕接收与显示
-- 礼物、舰长等特殊消息提示
-- 弹幕统计分析（弹幕数、礼物数、舰长数等）
-- 多直播间管理
-
-⚙️ **显示设置**
-- 关键词过滤与屏蔽
-- 关键词高亮显示
-- 礼物显示开关
-- 舰长提示开关
-- 点赞显示开关
-- 自动滚动功能
-
-🎨 **外观定制**
-- 深色主题界面
-- 透明度调节
-- 背景色、文字色自定义
-- 字体大小调整
-
-📊 **数据统计**
-- 实时弹幕数量统计
-- 礼物统计
-- 舰长统计
-- 在线人数统计
-- 热门关键词分析
-- Top用户排行
-
-## 安装
-
-### 方式一：使用pip安装
+确保已安装所有必要的依赖包：
 
 ```bash
-pip install .
+pip install aiohttp Brotli yarl keyboard requests
 ```
 
-### 方式二：直接运行
+### 2. 运行弹幕姬
 
+有多种方式启动弹幕姬：
+
+**方式一：直接运行**
 ```bash
+cd bili_capcmdtokb
 python run_danmaku.py
 ```
 
-## 使用方法
-
-### 1. 启动弹幕姬
-
+**方式二：使用模块运行**
 ```bash
-python run_danmaku.py
-```
-
-或
-
-```bash
+cd bili_capcmdtokb
 python -m danmaku.app
 ```
 
-### 2. 连接直播间
+**方式三：测试模式**
+```bash
+cd bili_capcmdtokb
+python test_danmaku.py
+```
 
-1. 在房间号输入框中输入B站直播间号
-2. 点击"连接"按钮
-3. 等待连接成功后即可开始接收弹幕
+### 3. 测试所有功能
 
-### 3. 获取房间号
+运行测试脚本验证所有模块功能：
 
+```bash
+python test_danmaku.py
+```
+
+## 功能使用
+
+### 连接直播间
+
+1. 启动弹幕姬后，会看到主界面
+2. 在左侧"直播间"面板的"房间号"输入框中输入B站直播间号
+3. 点击"连接"按钮
+4. 等待连接成功后，弹幕会实时显示在右侧弹幕区域
+
+**获取房间号方法：**
 - 直播间URL中的数字ID
 - 例如：`https://live.bilibili.com/22637261`
 - 房间号为：`22637261`
 
-## 目录结构
+### 显示设置
+
+在左侧"显示设置"面板中，可以控制：
+
+- ☑️ 显示礼物 - 是否显示礼物消息
+- ☑️ 显示舰长 - 是否显示舰长开通消息
+- ☑️ 显示点赞 - 是否显示点赞消息
+- ☑️ 自动滚动 - 弹幕是否自动滚动到最新
+
+### 统计数据
+
+实时显示以下统计数据：
+
+- 📝 弹幕数 - 当前会话接收的弹幕总数
+- 🎁 礼物数 - 收到的礼物总数
+- 🚀 舰长数 - 开通的舰长总数
+- 👥 在线人数 - 当前在线人数
+- 📈 峰值在线 - 历史最高在线人数
+
+### 设置功能
+
+点击菜单栏"设置"可以打开设置对话框：
+
+#### 弹幕过滤
+
+- 添加/移除屏蔽关键词
+- 屏蔽短弹幕（少于4字）
+- 屏蔽重复弹幕
+
+#### 关键词高亮
+
+- 添加/移除高亮关键词
+- 为不同关键词设置不同颜色
+
+#### 外观设置
+
+- 修改背景色和文字色
+- 调整窗口透明度
+- 修改弹幕字体大小
+
+### 菜单功能
+
+- **文件** → 清空记录：清空所有弹幕和统计数据
+- **文件** → 退出：关闭弹幕姬
+- **设置** → 弹幕过滤：打开过滤设置
+- **设置** → 关键词高亮：打开高亮设置
+- **设置** → 外观设置：打开外观设置
+- **帮助** → 使用说明：查看使用帮助
+- **帮助** → 关于：查看版本信息
+
+## 高级功能
+
+### 事件回调系统
+
+弹幕姬使用事件回调系统处理各种消息：
+
+```python
+from danmaku.core.event_handler import EventHandler, DanmakuFilter
+
+# 创建处理器
+handler = EventHandler(room_manager, statistics)
+
+# 添加自定义弹幕过滤器
+handler.add_danmaku_filter(DanmakuFilter.keyword_filter(["敏感词"]))
+
+# 添加高亮关键词
+handler.add_highlight_keyword("重要消息", "red")
+```
+
+### 统计系统
+
+```python
+from danmaku.core.statistics import StatisticsManager
+
+# 创建统计管理器
+stats = StatisticsManager()
+
+# 记录弹幕
+stats.record_danmaku(room_id, uid, nickname, text)
+
+# 获取统计摘要
+summary = stats.get_global_summary()
+print(f"弹幕数: {summary['total_danmaku']}")
+```
+
+### 直播间管理
+
+```python
+from danmaku.core.room_manager import RoomManager
+
+# 创建房间管理器
+manager = RoomManager()
+
+# 添加并连接房间
+await manager.add_room(22637261)
+await manager.connect_room(22637261)
+
+# 注册事件回调
+manager.register_callback('danmaku', your_callback_function)
+```
+
+## 项目结构
 
 ```
 bili_capcmdtokb/
-├── danmaku/                 # 弹幕姬主程序
+├── danmaku/                 # 弹幕姬主程序 (AI generated)
+│   ├── __init__.py
 │   ├── app.py              # 主程序入口
 │   ├── core/               # 核心模块
+│   │   ├── __init__.py
 │   │   ├── room_manager.py    # 直播间管理
-│   │   ├── statistics.py     # 统计数据管理
-│   │   └── event_handler.py  # 事件处理
+│   │   ├── statistics.py       # 统计数据管理
+│   │   └── event_handler.py    # 事件处理
 │   └── ui/                 # UI界面
+│       ├── __init__.py
 │       ├── danmaku_window.py   # 主窗口
-│       └── settings.py        # 设置面板
+│       └── settings.py         # 设置面板
 ├── ws/                    # WebSocket通信模块
 │   ├── ws.py              # B站WebSocket客户端
 │   ├── command.py         # 命令处理
@@ -97,83 +183,84 @@ bili_capcmdtokb/
 │   └── node.py            # 节点处理
 ├── log/                   # 日志模块
 │   └── log.py             # 日志工具
-├── demo/                  # 示例程序
-│   ├── demo1.py          # 弹幕键盘控制示例
-│   └── demo2.py          # 简易弹幕姬示例
-└── run_danmaku.py        # 启动器
+├── demo1.py              # 弹幕键盘控制示例
+├── run_danmaku.py        # 启动器 (AI generated)
+├── test_danmaku.py       # 测试脚本 (AI generated)
+└── Readme.md             # 项目说明 (AI generated)
 ```
 
-## 开发相关
+## 常见问题
 
-### 项目依赖
+### Q: 连接失败怎么办？
 
-- Python 3.9+
-- aiohttp >= 3.13.3
-- Brotli >= 1.2.0
-- yarl >= 1.22.0
-- keyboard >= 0.13.5
-- requests >= 2.32.5
+A: 检查以下几点：
+1. 网络连接是否正常
+2. 房间号是否正确
+3. 直播间是否在直播中
+4. 查看日志文件 `bili_capcmdtokb_info.log` 获取详细错误信息
 
-### 开发指南
+### Q: 如何查看日志？
 
-1. **直播间管理** (`danmaku/core/room_manager.py`)
-   - 支持多房间连接
-   - 自动重连机制
-   - 事件回调系统
+A: 日志文件位于项目根目录：
+```
+bili_capcmdtokb/bili_capcmdtokb_info.log
+```
 
-2. **事件处理** (`danmaku/core/event_handler.py`)
-   - 弹幕过滤
-   - 礼物处理
-   - 舰长处理
-   - 关键词高亮
+### Q: 如何修改默认房间号？
 
-3. **统计系统** (`danmaku/core/statistics.py`)
-   - 实时统计
-   - 历史记录
-   - Top榜单
+A: 编辑 `danmaku/ui/danmaku_window.py`，找到：
+```python
+self.room_id_entry.insert(0, "22637261")  # 默认房间号
+```
+将 `22637261` 改为你想要的房间号。
 
-## 示例程序
+### Q: 弹幕显示不完整？
 
-### demo1 - 弹幕键盘控制
+A: 可能是弹幕解析的问题，弹幕姬会自动限制显示的弹幕数量（默认500行），旧弹幕会自动清除。可以在设置中调整。
 
-通过发送特定弹幕控制电脑键盘，例如发送 "111" 按下E键。
+## 开发者指南
 
-### demo2 - 简易弹幕姬
+### 添加新的事件类型
 
-基础的弹幕显示界面，包含背景色和透明度调整功能。
+在 `event_handler.py` 中添加新的处理方法：
 
-### danmaku - 完整弹幕姬
+```python
+def handle_custom_event(self, msg: Dict[str, Any]) -> bool:
+    """处理自定义事件"""
+    # 处理逻辑
+    return True
+```
 
-功能完整的弹幕姬应用，包含所有高级功能。
+然后在 `handle_message` 中添加：
 
-## 注意事项
+```python
+elif cmd == 'CUSTOM_EVENT':
+    self.handle_custom_event(msg)
+```
 
-⚠️ **免责声明**
-- 本项目仅供学习交流使用
-- 请勿用于任何商业用途
-- 使用本项目造成的一切后果由使用者自行承担
+### 添加新的统计项
 
-## 参考项目
+在 `statistics.py` 中的 `StatisticsManager` 类添加新方法：
 
-- [blivedm](https://github.com/xfgryujk/blivedm) - B站直播弹幕Python库
-- [bilibili-api](https://github.com/nemo2011/bilibili-api) - B站API调用库
+```python
+def record_custom_stat(self, value):
+    """记录自定义统计"""
+    with self._lock:
+        self.custom_stats += value
+```
 
-## 作者
+## 技术支持
 
-Zhang Yuyang
-邮箱：zhangyuyang821@163.com
-
-## License
-
-MIT License
+- 邮箱：zhangyuyang821@163.com
+- GitHub Issues: https://github.com/Huoyanlifusu/bili_livestream_danmaku_parser/issues
 
 ## 更新日志
 
-### v1.0.0 (2026-04-06)
-- 全新重构的弹幕姬应用
-- 支持实时弹幕接收
-- 完整的UI界面
-- 礼物、舰长提示
-- 弹幕统计功能
-- 关键词过滤与高亮
-- 外观自定义设置
+### v0.5.0 (2026-04-06)
+- ✨ 全新重构的弹幕姬应用
+- 🎮 支持实时弹幕接收
+- 🎨 完整的UI界面
+- 🎁 礼物、舰长提示
+- 📊 弹幕统计功能
+- 🔍 关键词过滤与高亮
+- 🎨 外观自定义设置
