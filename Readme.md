@@ -164,7 +164,6 @@ bili_capcmdtokb/
 │   ├── app.py              # 主程序入口
 │   ├── core/               # 核心模块
 │   │   ├── __init__.py
-│   │   ├── room_manager.py    # 直播间管理
 │   │   ├── statistics.py       # 统计数据管理
 │   │   └── event_handler.py    # 事件处理
 │   └── ui/                 # UI界面
@@ -185,7 +184,6 @@ bili_capcmdtokb/
 │   └── log.py             # 日志工具
 ├── demo1.py              # 弹幕键盘控制示例
 ├── run_danmaku.py        # 启动器 (AI generated)
-├── test_danmaku.py       # 测试脚本 (AI generated)
 └── Readme.md             # 项目说明 (AI generated)
 ```
 
