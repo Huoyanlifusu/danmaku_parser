@@ -201,7 +201,7 @@ async def parse_ws_packet(packet: bytes, offset: int = 0) -> Tuple[Optional[Dict
     
     if header.operation == Operation.HEARTBEAT_REPLY:
         logger.pr_info(f"received heartbeat ack")
-        return hb_recv_format, None
+        return message, None
     
     return message, None
 
@@ -223,8 +223,6 @@ async def parse_ws_stream(data: bytes) -> Tuple[list, list]:
             break
 
         message, error = await parse_ws_packet(data, offset)
-        if message == hb_recv_format:
-            break
         if error:
             # 出错了，但继续尝试解析下一个包
             errors.append({'offset': offset, 'error': error})
